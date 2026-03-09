@@ -1,0 +1,80 @@
+ ======================================================================K8s setup using kind with ARGOCD===============================================================
+
+# sudo apt-get update
+# sudo apt-get install docker.io -y
+# sudo usermod -aG docker $USER && newgrp docker
+# mkdir k8s
+# vim install_kind.sh
+# chmod +x install_kind.sh
+# ./install_kind.sh
+# kind --version
+# vim config.yaml
+# kind create cluster --config=config.yml --name=cluster-node
+# vim install_kubectl.sh
+# chmod +x install_kubectl.sh
+# ./install_kubectl.sh
+# kubectl get nodes
+# kubectl get namespace
+# kubectl create namespace argocd
+# kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# curl -LO https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# kubectl get pods -n argocd
+# kubectl get svc -n argocd
+# kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+# kubectl port-forward svc/argocd-server -n argocd 31502:443 --address=0.0.0.0 &
+# kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo
+
+argocd UI login
+
+user: admin
+pwd : Argocd@1234
+
+# kubectl get pods
+# kubectl get svc
+
+# kubectl port-forward svc/vote 5000:5000 --address=0.0.0.0 &
+# kubectl port-forward svc/result 5001:5001 --address=0.0.0.0 &
+
+# kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.7.0/aio/deploy/recommended.yaml
+# vim dashboard.yml
+------------------------------------------> Kubernetes dashboard already will be there so no need to create it
+# kubectl apply -f dashboard.yml
+# kubectl get svc -n kubernetes-dashboard
+# kubectl port-forward svc/kubernetes-dashboard -n kubernetes-dashboard 8080:443 --address=0.0.0.0 &
+
+browser--->ip:8080
+enter the token in it
+
+# kubectl -n kubernetes-dashboard create token admin-user
+
+================================================================================================================================
+====================================================================
+If issues occur again restarting the server in Kubernetes and argocd do this
+============================================================================
+
+# kubectl port-forward svc/argocd-server -n argocd 31502:443 --address=0.0.0.0 &
+# kubectl get secret -n argocd argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d && echo
+# kubectl get pods -n argocd
+# kubectl get svc -n argocd
+# kubectl get pods -n kube-system | grep coredns  ----> check below one there or not in k8s uing this cmd
+---
+coredns-7db6d8ff4d-9r6mw                             0/1     Running            1 (13m ago)     15h
+coredns-7db6d8ff4d-zkqdv                             0/1     Running            1 (13m ago)     15h
+-----
+==============================================
+If not use the next come in below one and delete pod and check again
+=========================================
+
+# kubectl rollout restart deployment coredns -n kube-system ---> this one is for safty one for prod use
+# kubectl get svc -n argocd
+# kubectl get pods -n argocd
+# kubectl describe pods argocd-repo-server-54c96db6d5-glqxz -n argocd
+# kubectl delete pod argocd-repo-server-54c96db6d5-glqxz -n argocd
+# kubectl get pods -n argocd
+# kubectl get pods -n argocd -w
+
+================================================================================================================================
+
+
+
+
